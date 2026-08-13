@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Auditoría · Control de Documentos</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            background: #0b1a2f;
+            color: #e8edf5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            margin: 0;
+        }
+        
+        .game-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .game-container {
+            width: 100%;
+            background: #142b3f;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            border: 1px solid #2d4b66;
+            transition: all 0.3s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 1rem;
+                border-radius: 1rem;
+            }
+        }
+        
+        /* ===== ESTILOS BASE DE VENTANAS ===== */
+        .ventana {
+            display: none !important;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .ventana.activa {
+            display: block !important;
+        }
+        
+        /* ===== VENTANA 1: INICIO ===== */
+        #ventanaInicio {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+        
+        #ventanaInicio h1 {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            margin-bottom: 0.5rem;
+            color: #b8d8f0;
+        }
+        
+        #ventanaInicio .subtitle {
+            color: #7aa9c9;
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            margin-bottom: 2rem;
+        }
+        
+        .logo-icon {
+            font-size: clamp(3rem, 8vw, 5rem);
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        .input-group {
+            max-width: 400px;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            color: #aac8e0;
+            margin-bottom: 0.5rem;
+            font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+        }
+        
+        .input-group input {
+            width: 100%;
+            background: #1f3d55;
+            border: 2px solid #3a6a8a;
+            border-radius: 2rem;
+            padding: 0.8rem 1.2rem;
+            color: white;
+            font-size: clamp(1rem, 1.5vw, 1.2rem);
+            outline: none;
+            transition: 0.2s;
+            text-align: center;
+        }
+        
+        .input-group input:focus {
+            border-color: #6eb3e0;
+            box-shadow: 0 0 0 3px rgba(110, 179, 224, 0.3);
+        }
+        
+        .btn-principal {
+            background: linear-gradient(135deg, #2b5f7a, #1e4a63);
+            border: none;
+            padding: 0.8rem 2.5rem;
+            border-radius: 2.5rem;
+            font-weight: 700;
+            color: white;
+            font-size: clamp(1rem, 1.5vw, 1.2rem);
+            cursor: pointer;
+            transition: 0.15s;
+            border: 1px solid #4891b5;
+            box-shadow: 0 4px 0 #12303f;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .btn-principal:hover {
+            background: linear-gradient(135deg, #3b7a9a, #2a5f7a);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #12303f;
+        }
+        
+        .btn-principal:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #12303f;
+        }
+        
+        .btn-principal:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .info-inicio {
+            margin-top: 1.5rem;
+            color: #6a97b5;
+            font-size: clamp(0.8rem, 1.2vw, 0.95rem);
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .info-inicio span {
+            background: #0e253a;
+            padding: 0.3rem 1rem;
+            border-radius: 2rem;
+            border: 1px solid #2d4b66;
+        }
+        
+        /* ===== VENTANA 2: JUEGO ===== */
+        #ventanaJuego {
+            padding: 0.5rem 0;
+        }
+        
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            background: #0e1f30;
+            padding: 0.6rem 1rem;
+            border-radius: 3rem;
+            margin-bottom: 1.2rem;
+        }
+        
+        .game-header .player-name {
+            font-weight: 600;
+            color: #8fcbff;
+            font-size: clamp(0.85rem, 1.2vw, 1rem);
+        }
+        
+        .game-header .level-badge {
+            background: #203f58;
+            border-radius: 3rem;
+            padding: 0.2rem 1rem;
+            font-size: clamp(0.75rem, 1vw, 0.9rem);
+            font-weight: 500;
+        }
+        
+        .game-header .score-badge {
+            background: #1d4a3a;
+            border-radius: 3rem;
+            padding: 0.2rem 1rem;
+            font-size: clamp(0.75rem, 1vw, 0.9rem);
+            font-weight: 600;
+            color: #7ddfb0;
+        }
+        
+        .timer-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #0d1c2b;
+            padding: 0.2rem 0.8rem;
+            border-radius: 2rem;
+            border: 1px solid #3d7397;
+        }
+        
+        .timer-display {
+            font-weight: 700;
+            font-size: clamp(1.2rem, 2vw, 1.6rem);
+            color: #8fcbff;
+            min-width: 3.5rem;
+            text-align: center;
+        }
+        
+        .timer-bar {
+            width: 100%;
+            height: 6px;
+            background: #0d1c2b;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 0.8rem;
+        }
+        
+        .timer-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            border-radius: 3px;
+            transition: width 0.3s linear;
+            width: 100%;
+        }
+        
+        .timer-bar-fill.warning {
+            background: linear-gradient(90deg, #FF9800, #FFC107);
+        }
+        
+        .timer-bar-fill.danger {
+            background: linear-gradient(90deg, #f44336, #FF5722);
+        }
+        
+        .question-box {
+            background: #0b1e2e;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            border-left: 6px solid #4797c7;
+            margin: 0.5rem 0 1rem;
+            min-height: 80px;
+        }
+        
+        .question-text {
+            font-size: clamp(1rem, 1.8vw, 1.3rem);
+            font-weight: 500;
+            line-height: 1.5;
+        }
+        
+        .question-number {
+            color: #6a97b5;
+            font-size: clamp(0.75rem, 1vw, 0.85rem);
+            margin-bottom: 0.5rem;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem;
+            margin: 1rem 0 1rem;
+        }
+        
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+        }
+        
+        .option-btn {
+            background: #1b344b;
+            border: 2px solid #2e5677;
+            border-radius: 1rem;
+            padding: 0.8rem 1rem;
+            color: #e0edf5;
+            font-weight: 500;
+            text-align: left;
+            transition: 0.12s;
+            cursor: pointer;
+            font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+            min-height: 50px;
+            word-break: break-word;
+        }
+        
+        .option-btn:hover:not(:disabled) {
+            background: #2a4d6a;
+            border-color: #5b92b9;
+            transform: scale(1.01);
+        }
+        
+        .option-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .option-btn.selected-correct {
+            background: #1d7a4a;
+            border-color: #3acf8a;
+        }
+        
+        .option-btn.selected-wrong {
+            background: #8f2f3f;
+            border-color: #e06575;
+        }
+        
+        .option-btn.show-correct {
+            background: #1d7a4a;
+            border-color: #3acf8a;
+            opacity: 0.8;
+        }
+        
+        .feedback-panel {
+            background: #0f283b;
+            border-radius: 1.2rem;
+            padding: 1rem 1.2rem;
+            margin: 0.8rem 0 0.5rem;
+            border-left: 4px solid #4d8eb0;
+            font-size: clamp(0.9rem, 1.2vw, 0.98rem);
+            min-height: 60px;
+        }
+        
+        .game-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 0.8rem;
+        }
+        
+        .btn-siguiente {
+            background: #2a5f7a;
+            border: none;
+            padding: 0.7rem 2rem;
+            border-radius: 2.5rem;
+            font-weight: 600;
+            color: white;
+            font-size: clamp(0.9rem, 1.2vw, 1rem);
+            cursor: pointer;
+            transition: 0.15s;
+            border: 1px solid #4891b5;
+            box-shadow: 0 3px 0 #12303f;
+            min-width: 120px;
+        }
+        
+        .btn-siguiente:hover:not(:disabled) {
+            background: #3b7a9a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 0 #12303f;
+        }
+        
+        .btn-siguiente:active:not(:disabled) {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #12303f;
+        }
+        
+        .btn-siguiente:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* ===== VENTANA 3: RESULTADOS ===== */
+        #ventanaResultados {
+            padding: 1rem 0;
+        }
+        
+        .result-header {
+            text-align: center;
+            padding: 1.5rem 0;
+        }
+        
+        .result-header h2 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            color: #b8d8f0;
+        }
+        
+        .result-score {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 700;
+            color: #7ddfb0;
+            margin: 0.5rem 0;
+        }
+        
+        .result-details {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin: 1rem 0 1.5rem;
+        }
+        
+        .result-details span {
+            background: #0e253a;
+            padding: 0.3rem 1.2rem;
+            border-radius: 2rem;
+            border: 1px solid #2d4b66;
+            font-size: clamp(0.85rem, 1.2vw, 1rem);
+        }
+        
+        .result-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+        
+        .result-actions .btn-principal {
+            max-width: 200px;
+            font-size: clamp(0.85rem, 1vw, 1rem);
+            padding: 0.6rem 1.5rem;
+        }
+        
+        .leaderboard-section {
+            background: #112b3f;
+            border-radius: 1.4rem;
+            padding: 1.2rem 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .leaderboard-section h3 {
+            font-weight: 400;
+            border-bottom: 1px solid #2e5a78;
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            font-size: clamp(1rem, 1.5vw, 1.2rem);
+        }
+        
+        .leaderboard-section ol {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .leaderboard-section li {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0.2rem;
+            border-bottom: 1px solid #1d4057;
+            font-size: clamp(0.85rem, 1.1vw, 0.95rem);
+        }
+        
+        .leaderboard-section .top1 { color: #f7d44a; }
+        .leaderboard-section .top2 { color: #b8d0e0; }
+        .leaderboard-section .top3 { color: #c8935a; }
+        
+        .file-upload-area {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            background: #1b364d;
+            padding: 0.5rem 1rem;
+            border-radius: 3rem;
+        }
+        
+        .file-upload-area input[type="file"] {
+            color: #b0d0e8;
+            font-size: clamp(0.75rem, 0.9vw, 0.85rem);
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .file-upload-area input::file-selector-button {
+            background: #2f5a7a;
+            border: none;
+            padding: 0.3rem 1rem;
+            border-radius: 2rem;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .btn-small {
+            background: #2f5a7a;
+            border: none;
+            padding: 0.3rem 1.2rem;
+            border-radius: 2rem;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: clamp(0.75rem, 0.9vw, 0.85rem);
+        }
+        
+        .btn-small:hover {
+            background: #3b7a9a;
+        }
+        
+        .no-data {
+            color: #6a8fa5;
+            text-align: center;
+            padding: 1rem 0;
+        }
+        
+        .leaderboard-section ol::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .leaderboard-section ol::-webkit-scrollbar-thumb {
+            background: #2d5a7a;
+            border-radius: 2px;
+        }
+        
+        .leaderboard-section ol::-webkit-scrollbar-track {
+            background: #0b1a2f;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+<div class="game-wrapper">
+    <div class="game-container">
+        
+        <!-- ========== VENTANA 1: INICIO ========== -->
+        <div id="ventanaInicio" class="ventana activa">
+            <span class="logo-icon">📋</span>
+            <h1>Auditoría · Control de Documentos</h1>
+            <p class="subtitle">Pon a prueba tus conocimientos en auditoría de archivos</p>
+            
+            <div class="input-group">
+                <label for="playerNameInput">👤 Ingresa tu nombre</label>
+                <input type="text" id="playerNameInput" placeholder="Escribe tu nombre completo" maxlength="30">
+            </div>
+            
+            <button class="btn-principal" id="btnIniciarJuego">🚀 Comenzar Juego</button>
+            
+            <div class="info-inicio">
+                <span>📝 20 preguntas</span>
+                <span>🎯 3 niveles</span>
+                <span>⏱️ 100 segundos por pregunta</span>
+            </div>
+        </div>
+        
+        <!-- ========== VENTANA 2: JUEGO ========== -->
+        <div id="ventanaJuego" class="ventana">
+            <div class="game-header">
+                <span class="player-name" id="jugadorNombre">👤 Jugador</span>
+                <span class="level-badge" id="nivelDisplay">Nivel 1 · 0/5</span>
+                <span class="score-badge" id="puntajeDisplay">⭐ 0 pts</span>
+                <div class="timer-container">
+                    <span>⏱️</span>
+                    <span class="timer-display" id="timerDisplay">100s</span>
+                </div>
+            </div>
+            
+            <div class="timer-bar">
+                <div class="timer-bar-fill" id="timerBarFill"></div>
+            </div>
+            
+            <div class="question-box">
+                <div class="question-number" id="preguntaNumero">Pregunta 1 de 5</div>
+                <div class="question-text" id="questionText">Cargando pregunta...</div>
+            </div>
+            
+            <div class="options-grid" id="optionsContainer"></div>
+            
+            <div class="feedback-panel" id="feedbackPanel">💡 Selecciona una opción antes de que termine el tiempo.</div>
+            
+            <div class="game-footer">
+                <button class="btn-siguiente" id="nextQuestionBtn" disabled>Siguiente →</button>
+            </div>
+        </div>
+        
+        <!-- ========== VENTANA 3: RESULTADOS ========== -->
+        <div id="ventanaResultados" class="ventana">
+            <div class="result-header">
+                <h2>🏆 ¡Juego Completado!</h2>
+                <div class="result-score" id="puntajeFinal">0</div>
+                <div style="color: #aac8e0; font-size: clamp(0.9rem, 1.2vw, 1.1rem);">puntos obtenidos</div>
+                <div class="result-details">
+                    <span id="nivelFinal">Nivel alcanzado: 1</span>
+                    <span id="jugadorFinal">Jugador: --</span>
+                </div>
+            </div>
+            
+            <div class="result-actions">
+                <button class="btn-principal" id="btnJugarDeNuevo" style="max-width:180px;">🔄 Jugar de nuevo</button>
+                <button class="btn-principal" id="btnVerRanking" style="max-width:180px; background: #2a4055;">📊 Ver Ranking</button>
+            </div>
+            
+            <div class="leaderboard-section" id="rankingSection">
+                <h3>🏅 TOP 10 <span style="font-weight:300; font-size:clamp(0.7rem, 0.9vw, 0.8rem);">mejores puntajes</span></h3>
+                <ol id="leaderboardList">
+                    <li class="no-data">— Sin registros aún —</li>
+                </ol>
+                
+                <div class="file-upload-area">
+                    <span style="font-size:clamp(0.75rem, 0.9vw, 0.85rem);">📂 Cargar archivos .txt</span>
+                    <input type="file" id="fileUpload" accept=".txt" multiple>
+                    <button class="btn-small" id="consolidateBtn">Consolidar</button>
+                </div>
+                <div style="color:#5f8aa8; font-size:clamp(0.65rem, 0.8vw, 0.75rem); margin-top:0.3rem;">
+                    Los puntajes se guardan automáticamente al finalizar
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+(function(){
+    // ============================================================
+    // 🔴 IMPORTANTE: CAMBIA ESTA URL CON LA DE TU GOOGLE SCRIPT
+    // ============================================================
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQVWsQNZMLfCkkNF4hmyk8ubOJ6nhbv-5r8EUkHsBUem-C7nnwdkmDRwDS8jk9FUW7/exec';
+    // ============================================================
+    
+    // ===== BANCO DE PREGUNTAS (20) =====
+    const BANK = [
+        { q: "¿Qué es la auditoría administrativa según la literatura técnica?", a: "Es el examen integral y sistemático de la estructura orgánica de una empresa, sus métodos de control, medios de operación y el empleo de sus recursos humanos, materiales y tecnológicos." },
+        { q: "¿Cuál es el objetivo principal de la auditoría operativa?", a: "Elevar la eficiencia, eficacia y economía de la gestión organizacional mediante la identificación de fallas operativas y la formulación de recomendaciones de mejora." },
+        { q: "¿Qué caracteriza a un auditor interno?", a: "Es un profesional que pertenece a la plantilla formal de la organización y evalúa de manera continua el sistema de control interno y el cumplimiento de las políticas institucionales." },
+        { q: "¿Cuál es la principal ventaja de la independencia del auditor externo?", a: "Permite emitir un dictamen neutral, libre de sesgos o conflictos de interés, proporcionando total validez y confianza a terceros sobre los estados financieros o procesos evaluados." },
+        { q: "¿Qué significa que una empresa esté certificada bajo una norma de gestión?", a: "Significa que sus procesos operativos y documentales cumplen rigurosamente con estándares internacionales y que está obligada a mantener un ciclo constante de auditorías y mejora continua." },
+        { q: "¿Cuáles son las tres etapas macro indispensables en cualquier proceso de auditoría?", a: "Planeación (o diseño del programa de trabajo), Ejecución (trabajo de campo y recopilación de evidencias) e Informe (emisión de resultados y recomendaciones)." },
+        { q: "¿Quién es el 'Cliente' en el contexto de los actores de una auditoría?", a: "Es la persona, grupo u organización que tiene la autoridad legal o contractual para solicitar y financiar la realización de la auditoría." },
+        { q: "¿Qué rol cumple el 'Auditado' durante el trabajo de campo?", a: "Es el responsable del área examinada encargado de suministrar información verídica, dar acceso a las bases de datos y facilitar la gestión documental necesaria." },
+        { q: "¿Cómo impacta una deficiente gestión documental en un proceso de auditoría?", a: "Destruye la trazabilidad de las operaciones, imposibilita la recolección de evidencia objetiva y puede dar lugar a hallazgos negativos o pérdidas de certificaciones." },
+        { q: "¿Qué es un 'hallazgo' en términos de auditoría?", a: "Es cualquier desviación, incumplimiento o debilidad detectada al contrastar la situación real encontrada (evidencia) contra el criterio establecido (norma o manual)." },
+        { q: "Según la perspectiva de la Contraloría General de la República, ¿qué implica un hallazgo fiscal?", a: "Implica una afectación económica directa al patrimonio del Estado derivada de una gestión ineficaz, ineficiente o que incumple la normatividad legal de los recursos públicos." },
+        { q: "¿Por qué la auditoría es considerada una herramienta de mejora continua?", a: "Porque no busca únicamente señalar errores, sino diagnosticar causas raíz para establecer acciones correctivas que optimicen el rendimiento a largo plazo." },
+        { q: "¿Qué es el control interno en una organización?", a: "Es el conjunto de planes, métodos, principios y procedimientos adoptados por una entidad para salvaguardar sus activos y verificar la exactitud de su información." },
+        { q: "¿Qué papel juega la auditoría ante la desfinanciación presupuestal de una entidad?", a: "Actúa como un mecanismo de alerta temprana, permitiendo a la alta dirección visualizar riesgos financieros futuros y ajustar la planeación estratégica de forma oportuna." },
+        { q: "¿Qué es una cédula de auditoría?", a: "Es el documento o papel de trabajo donde el auditor registra formalmente los análisis, las pruebas ejecutadas, los datos obtenidos y las conclusiones de su revisión." },
+        { q: "¿Qué se entiende por 'evidencia de auditoría competente y suficiente'?", a: "Es el conjunto de pruebas fácticas, documentales o testimoniales que tienen la calidad necesaria (competente) y la cantidad requerida (suficiente) para sustentar un hallazgo de forma irrefutable." },
+        { q: "¿A quién debe dirigirse principalmente un informe corto de auditoría operativa?", a: "A la alta dirección o junta directiva, ya que son quienes poseen la autoridad ejecutiva para aprobar e implementar los planes de mejoramiento propuestos." },
+        { q: "¿Qué es el alcance de una auditoría?", a: "Es la delimitación del marco de trabajo del auditor, donde se definen de manera precisa los periodos de tiempo, áreas geográficas y procesos específicos que serán examinados." },
+        { q: "¿Cuál es la diferencia en el enfoque de la gestión documental para un auditor interno versus uno externo?", a: "El interno la evalúa diariamente para optimizar el flujo de trabajo operativo; el externo la examina para validar de manera legal que los soportes documentales sostienen los resultados institucionales." },
+        { q: "¿Qué es un plan de mejoramiento derivado de una auditoría?", a: "Es el cronograma formal y vinculante diseñado por el auditado donde se detallan las acciones, responsables y fechas límite para corregir las debilidades señaladas en el informe técnico." }
+    ];
+
+    // ===== ELEMENTOS DOM =====
+    const ventanaInicio = document.getElementById('ventanaInicio');
+    const ventanaJuego = document.getElementById('ventanaJuego');
+    const ventanaResultados = document.getElementById('ventanaResultados');
+    
+    const playerNameInput = document.getElementById('playerNameInput');
+    const btnIniciar = document.getElementById('btnIniciarJuego');
+    const jugadorNombre = document.getElementById('jugadorNombre');
+    const nivelDisplay = document.getElementById('nivelDisplay');
+    const puntajeDisplay = document.getElementById('puntajeDisplay');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const timerBarFill = document.getElementById('timerBarFill');
+    const questionText = document.getElementById('questionText');
+    const preguntaNumero = document.getElementById('preguntaNumero');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const feedbackPanel = document.getElementById('feedbackPanel');
+    const nextBtn = document.getElementById('nextQuestionBtn');
+    const puntajeFinal = document.getElementById('puntajeFinal');
+    const nivelFinal = document.getElementById('nivelFinal');
+    const jugadorFinal = document.getElementById('jugadorFinal');
+    const btnJugarDeNuevo = document.getElementById('btnJugarDeNuevo');
+    const btnVerRanking = document.getElementById('btnVerRanking');
+    const leaderboardList = document.getElementById('leaderboardList');
+    const fileUpload = document.getElementById('fileUpload');
+    const consolidateBtn = document.getElementById('consolidateBtn');
+
+    // ===== ESTADO DEL JUEGO =====
+    let state = {
+        playerName: '',
+        currentLevel: 1,
+        questionIndexInLevel: 0,
+        currentQuestion: null,
+        usedIndices: [],
+        score: 0,
+        answered: false,
+        timer: 100,
+        timerMax: 100,
+        timerInterval: null,
+        gameActive: false,
+        totalQuestions: 0,
+        maxQuestions: 15
+    };
+
+    // ===== FUNCIÓN PARA GUARDAR EN GOOGLE SHEETS =====
+    async function guardarEnGoogleSheets(nombre, puntaje, nivel) {
+        try {
+            const datos = {
+                nombre: nombre,
+                puntaje: puntaje,
+                nivel: nivel,
+                id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+            };
+            
+            console.log('📤 Enviando a Google Sheets:', datos);
+            
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datos)
+            });
+            
+            console.log('✅ Datos enviados a Google Sheets');
+            return true;
+        } catch (error) {
+            console.error('❌ Error al guardar en Google Sheets:', error);
+            return false;
+        }
+    }
+
+    // ===== FUNCIONES DE VENTANAS =====
+    function mostrarVentana(id) {
+        const ventanas = document.querySelectorAll('.ventana');
+        for (let i = 0; i < ventanas.length; i++) {
+            ventanas[i].classList.remove('activa');
+        }
+        const ventana = document.getElementById(id);
+        if (ventana) {
+            ventana.classList.add('activa');
+            console.log('✅ Ventana mostrada:', id);
+        } else {
+            console.error('❌ Ventana no encontrada:', id);
+        }
+    }
+
+    // ===== LEADERBOARD LOCAL (respaldo) =====
+    function loadLeaderboard() {
+        try {
+            const raw = localStorage.getItem('audit_leaderboard');
+            if (!raw) return [];
+            return JSON.parse(raw);
+        } catch { return []; }
+    }
+
+    function saveLeaderboard(list) {
+        localStorage.setItem('audit_leaderboard', JSON.stringify(list));
+    }
+
+    function updateLeaderboardUI() {
+        const list = loadLeaderboard().slice(0, 10);
+        leaderboardList.innerHTML = '';
+        if (list.length === 0) {
+            leaderboardList.innerHTML = '<li class="no-data">— Sin registros aún —</li>';
+            return;
+        }
+        list.forEach((entry, idx) => {
+            const li = document.createElement('li');
+            let cls = '';
+            if (idx === 0) cls = 'top1';
+            else if (idx === 1) cls = 'top2';
+            else if (idx === 2) cls = 'top3';
+            li.className = cls;
+            li.innerHTML = `<span>${idx+1}. ${entry.nombre || 'Anónimo'}</span><span>${entry.puntaje} pts</span>`;
+            leaderboardList.appendChild(li);
+        });
+    }
+
+    function addScoreToLeaderboard(nombre, puntaje) {
+        const list = loadLeaderboard();
+        list.push({ nombre, puntaje, fecha: new Date().toISOString() });
+        list.sort((a, b) => b.puntaje - a.puntaje);
+        saveLeaderboard(list);
+        updateLeaderboardUI();
+    }
+
+    // ===== GUARDAR ARCHIVO .txt (respaldo) =====
+    function guardarArchivoTxt(nombre, puntaje, nivel) {
+        const now = new Date();
+        const id = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
+        const content = `JUGADOR: ${nombre}\nPUNTAJE: ${puntaje}\nNIVEL_ALCANZADO: ${nivel}\nID: ${id}\nFECHA: ${now.toLocaleString()}\n`;
+        const blob = new Blob([content], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `auditoria_${nombre}_${id}.txt`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+
+    // ===== FUNCIONES DEL JUEGO =====
+    function getOptionsForQuestion(correctAnswer, questionIdx) {
+        let pool = BANK.map((item, idx) => ({ text: item.a, idx }));
+        pool = pool.filter(item => item.idx !== questionIdx);
+        for (let i = pool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [pool[i], pool[j]] = [pool[j], pool[i]];
+        }
+        let wrongs = pool.slice(0, 3).map(item => item.text);
+        while (wrongs.length < 3) wrongs.push('Opción de relleno');
+        let opts = [correctAnswer, ...wrongs];
+        for (let i = opts.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [opts[i], opts[j]] = [opts[j], opts[i]];
+        }
+        return opts;
+    }
+
+    function loadNextQuestion() {
+        if (!state.gameActive) {
+            console.log('⚠️ Juego no activo, ignorando loadNextQuestion');
+            return;
+        }
+
+        if (state.questionIndexInLevel >= 5) {
+            if (state.currentLevel === 3) {
+                terminarJuego();
+                return;
+            } else {
+                state.currentLevel++;
+                state.questionIndexInLevel = 0;
+                state.usedIndices = [];
+                nivelDisplay.textContent = `Nivel ${state.currentLevel} · 0/5`;
+                feedbackPanel.innerHTML = `⬆️ ¡Subiste al Nivel ${state.currentLevel}!`;
+            }
+        }
+
+        let available = BANK.map((_, idx) => idx).filter(idx => !state.usedIndices.includes(idx));
+        if (available.length === 0) {
+            state.usedIndices = [];
+            available = BANK.map((_, idx) => idx);
+        }
+        const randIdx = available[Math.floor(Math.random() * available.length)];
+        state.usedIndices.push(randIdx);
+        const qData = BANK[randIdx];
+        state.currentQuestion = { ...qData, index: randIdx };
+
+        const opts = getOptionsForQuestion(qData.a, randIdx);
+        questionText.textContent = qData.q;
+        preguntaNumero.textContent = `Pregunta ${state.questionIndexInLevel + 1} de 5 · Nivel ${state.currentLevel}`;
+        
+        optionsContainer.innerHTML = '';
+        opts.forEach((optText) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = optText;
+            btn.dataset.correct = (optText === qData.a) ? 'true' : 'false';
+            btn.addEventListener('click', function() { handleOptionClick(this); });
+            optionsContainer.appendChild(btn);
+        });
+
+        state.answered = false;
+        state.questionIndexInLevel++;
+        nivelDisplay.textContent = `Nivel ${state.currentLevel} · ${state.questionIndexInLevel}/5`;
+        nextBtn.disabled = true;
+        feedbackPanel.innerHTML = '⏳ Selecciona una opción antes de que termine el tiempo.';
+        
+        startTimer(100);
+    }
+
+    function startTimer(seconds) {
+        clearInterval(state.timerInterval);
+        state.timer = seconds;
+        state.timerMax = seconds;
+        timerDisplay.textContent = `${seconds}s`;
+        timerBarFill.style.width = '100%';
+        timerBarFill.className = 'timer-bar-fill';
+        
+        state.timerInterval = setInterval(function() {
+            state.timer--;
+            timerDisplay.textContent = `${state.timer}s`;
+            const porcentaje = (state.timer / state.timerMax) * 100;
+            timerBarFill.style.width = `${porcentaje}%`;
+            
+            if (porcentaje < 30) {
+                timerBarFill.className = 'timer-bar-fill danger';
+            } else if (porcentaje < 60) {
+                timerBarFill.className = 'timer-bar-fill warning';
+            } else {
+                timerBarFill.className = 'timer-bar-fill';
+            }
+            
+            if (state.timer <= 0) {
+                clearInterval(state.timerInterval);
+                timerDisplay.textContent = '0s';
+                timerBarFill.style.width = '0%';
+                if (!state.answered) {
+                    feedbackPanel.innerHTML = '⏰ ¡Tiempo agotado! Se muestra la respuesta correcta.';
+                    revealCorrectAnswer();
+                    state.answered = true;
+                    nextBtn.disabled = false;
+                }
+            }
+        }, 1000);
+    }
+
+    function revealCorrectAnswer() {
+        const btns = optionsContainer.querySelectorAll('.option-btn');
+        btns.forEach(function(btn) {
+            btn.disabled = true;
+            if (btn.dataset.correct === 'true') {
+                btn.classList.add('show-correct');
+            }
+        });
+        feedbackPanel.innerHTML = `✅ Respuesta correcta: "${state.currentQuestion.a}"`;
+    }
+
+    function handleOptionClick(btn) {
+        if (state.answered || state.timer <= 0) return;
+        const isCorrect = btn.dataset.correct === 'true';
+        state.answered = true;
+        clearInterval(state.timerInterval);
+
+        const btns = optionsContainer.querySelectorAll('.option-btn');
+        btns.forEach(function(b) { b.disabled = true; });
+        
+        if (isCorrect) {
+            btn.classList.add('selected-correct');
+            state.score += 10;
+            feedbackPanel.innerHTML = `✅ ¡Correcto! +10 puntos.`;
+        } else {
+            btn.classList.add('selected-wrong');
+            btns.forEach(function(b) {
+                if (b.dataset.correct === 'true') b.classList.add('show-correct');
+            });
+            feedbackPanel.innerHTML = `❌ Incorrecto. La respuesta correcta es: "${state.currentQuestion.a}"`;
+        }
+        puntajeDisplay.textContent = `⭐ ${state.score} pts`;
+        nextBtn.disabled = false;
+    }
+
+    async function terminarJuego() {
+        state.gameActive = false;
+        clearInterval(state.timerInterval);
+        
+        if (state.playerName) {
+            // Guardar en leaderboard local
+            addScoreToLeaderboard(state.playerName, state.score);
+            
+            // Guardar en Google Sheets
+            await guardarEnGoogleSheets(state.playerName, state.score, state.currentLevel);
+            
+            // Guardar archivo .txt como respaldo
+            guardarArchivoTxt(state.playerName, state.score, state.currentLevel);
+        }
+        
+        puntajeFinal.textContent = state.score;
+        nivelFinal.textContent = `Nivel alcanzado: ${state.currentLevel}`;
+        jugadorFinal.textContent = `Jugador: ${state.playerName}`;
+        
+        mostrarVentana('ventanaResultados');
+        updateLeaderboardUI();
+    }
+
+    function reiniciarJuego() {
+        clearInterval(state.timerInterval);
+        state.currentLevel = 1;
+        state.questionIndexInLevel = 0;
+        state.usedIndices = [];
+        state.score = 0;
+        state.answered = false;
+        state.gameActive = false;
+        state.totalQuestions = 0;
+        
+        nivelDisplay.textContent = 'Nivel 1 · 0/5';
+        puntajeDisplay.textContent = '⭐ 0 pts';
+        feedbackPanel.innerHTML = '💡 Selecciona una opción antes de que termine el tiempo.';
+        timerDisplay.textContent = '100s';
+        timerBarFill.style.width = '100%';
+        timerBarFill.className = 'timer-bar-fill';
+        nextBtn.disabled = true;
+        
+        mostrarVentana('ventanaInicio');
+        playerNameInput.value = '';
+        playerNameInput.focus();
+    }
+
+    function iniciarJuego() {
+        console.log('🎮 Iniciando juego...');
+        const name = playerNameInput.value.trim();
+        if (!name) {
+            alert('Por favor, ingresa tu nombre para comenzar.');
+            playerNameInput.focus();
+            return;
+        }
+        
+        console.log('👤 Jugador:', name);
+        state.playerName = name;
+        state.currentLevel = 1;
+        state.questionIndexInLevel = 0;
+        state.usedIndices = [];
+        state.score = 0;
+        state.answered = false;
+        state.gameActive = true;
+        state.totalQuestions = 0;
+        
+        jugadorNombre.textContent = `👤 ${name}`;
+        nivelDisplay.textContent = 'Nivel 1 · 0/5';
+        puntajeDisplay.textContent = '⭐ 0 pts';
+        
+        console.log('🔄 Cambiando a ventana de juego...');
+        mostrarVentana('ventanaJuego');
+        
+        console.log('📝 Cargando primera pregunta...');
+        setTimeout(function() {
+            loadNextQuestion();
+        }, 300);
+    }
+
+    // ===== CONSOLIDAR ARCHIVOS =====
+    async function consolidateFiles(files) {
+        if (!files || files.length === 0) {
+            alert('Selecciona al menos un archivo .txt');
+            return;
+        }
+        let newEntries = [];
+        for (const file of files) {
+            try {
+                const text = await file.text();
+                const lines = text.split('\n').map(l => l.trim());
+                let nombre = 'Anónimo', puntaje = 0;
+                for (const line of lines) {
+                    if (line.startsWith('JUGADOR:')) nombre = line.replace('JUGADOR:', '').trim();
+                    if (line.startsWith('PUNTAJE:')) puntaje = parseInt(line.replace('PUNTAJE:', '').trim()) || 0;
+                }
+                if (nombre && puntaje > 0) newEntries.push({ nombre, puntaje });
+            } catch (e) { /* ignorar */ }
+        }
+        if (newEntries.length === 0) {
+            alert('No se encontraron datos válidos en los archivos.');
+            return;
+        }
+        const current = loadLeaderboard();
+        const combined = [...current, ...newEntries];
+        combined.sort((a, b) => b.puntaje - a.puntaje);
+        saveLeaderboard(combined);
+        updateLeaderboardUI();
+        alert(`✅ Consolidados ${newEntries.length} registros.`);
+    }
+
+    // ===== EVENT LISTENERS =====
+    btnIniciar.addEventListener('click', function() {
+        console.log('🖱️ Click en "Comenzar Juego"');
+        iniciarJuego();
+    });
+    
+    playerNameInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            console.log('⌨️ Enter presionado');
+            iniciarJuego();
+        }
+    });
+    
+    nextBtn.addEventListener('click', function() {
+        console.log('🖱️ Click en "Siguiente"');
+        loadNextQuestion();
+    });
+    
+    btnJugarDeNuevo.addEventListener('click', function() {
+        console.log('🖱️ Click en "Jugar de nuevo"');
+        reiniciarJuego();
+    });
+    
+    btnVerRanking.addEventListener('click', function() {
+        console.log('🖱️ Click en "Ver Ranking"');
+        mostrarVentana('ventanaResultados');
+        updateLeaderboardUI();
+    });
+    
+    consolidateBtn.addEventListener('click', function() {
+        const files = fileUpload.files;
+        if (files.length === 0) {
+            alert('Selecciona uno o varios archivos .txt');
+            return;
+        }
+        consolidateFiles(files).catch(console.warn);
+    });
+
+    // ===== INICIALIZAR =====
+    console.log('🚀 Inicializando juego...');
+    console.log('📊 Google Sheets URL:', GOOGLE_SCRIPT_URL);
+    updateLeaderboardUI();
+    mostrarVentana('ventanaInicio');
+    playerNameInput.focus();
+    console.log('✅ Juego inicializado correctamente');
+})();
+</script>
+</body>
+</html>
